@@ -105,4 +105,57 @@
   .text-glow-accent {
     text-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
   }
+
+  @keyframes glitch {
+    0%, 100% { transform: translate(0); text-shadow: 0 0 20px rgba(139,92,246,0.5); }
+    20% { transform: translate(-2px, 2px); text-shadow: -2px 0 #22d3ee; }
+    40% { transform: translate(2px, -2px); text-shadow: 2px 0 #8b5cf6; }
+    60% { transform: translate(-1px, 1px); }
+    80% { transform: translate(1px, -1px); text-shadow: 1px 0 #3b82f6; }
+  }
+  .glitch-text {
+    animation: glitch 4s infinite;
+  }
+
+  @keyframes scanline {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100%; }
+  }
+  .terminal-scanlines {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.05) 2px,
+      rgba(0,0,0,0.05) 4px
+    );
+    pointer-events: none;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(139,92,246,0.3), 0 0 20px rgba(139,92,246,0.1); }
+    50% { box-shadow: 0 0 20px rgba(139,92,246,0.7), 0 0 60px rgba(139,92,246,0.3); }
+  }
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 25s linear infinite;
+  }
+  .animate-marquee-reverse {
+    animation: marquee 30s linear infinite reverse;
+  }
+
+  @keyframes float-y {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+  .float-animate {
+    animation: float-y 4s ease-in-out infinite;
+  }
 }

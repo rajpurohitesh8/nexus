@@ -1,42 +1,8 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Code2, Smartphone, Cloud, Layers, Cpu, ShieldCheck, RefreshCw, Lock, Link as LinkIcon, ArrowRight } from "lucide-react";
-import { useRef, useState } from "react";
-
-function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [glare, setGlare] = useState({ x: 50, y: 50 });
-  
-  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const x = (e.clientY - rect.top) / rect.height;
-    const y = (e.clientX - rect.left) / rect.width;
-    setTilt({ x: (x - 0.5) * -20, y: (y - 0.5) * 20 }); // Reversed signs for natural tilt feeling
-    setGlare({ x: y * 100, y: x * 100 });
-  };
-  
-  const reset = () => setTilt({ x: 0, y: 0 });
-  
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMove}
-      onMouseLeave={reset}
-      animate={{ rotateX: tilt.x, rotateY: tilt.y }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      style={{ transformStyle: 'preserve-3d', perspective: 1000 }}
-      className={className}
-    >
-      {/* Glare overlay */}
-      <div
-        className="absolute inset-0 rounded-3xl pointer-events-none z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{ background: `radial-gradient(circle at ${glare.x}% ${glare.y}%, rgba(255,255,255,0.08) 0%, transparent 60%)` }}
-      />
-      {children}
-    </motion.div>
-  );
-}
+import { useRef } from "react";
+import { HolographicCard } from "@/components/HolographicCard";
+import { ScrambleText } from "@/components/ScrambleText";
 
 const SERVICES = [
   {
@@ -87,12 +53,43 @@ const SERVICES = [
 ];
 
 export function Services() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
+
   return (
-    <section id="services" className="py-32 relative z-10 bg-background overflow-hidden">
+    <section id="services" ref={containerRef} className="py-32 relative z-10 bg-background overflow-hidden">
+      {/* Background SVG Parallax */}
+      <motion.div 
+        style={{ y: bgY }}
+        className="absolute inset-0 w-full h-[150%] opacity-[0.04] pointer-events-none"
+        dangerouslySetInnerHTML={{
+          __html: `
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="circuit" width="100" height="100" patternUnits="userSpaceOnUse">
+                <path d="M10 10 L40 10 L40 40 M60 10 L90 10 M10 60 L10 90 L40 90 M60 90 L90 90 L90 60" fill="none" stroke="#8b5cf6" stroke-width="1"/>
+                <circle cx="10" cy="10" r="2" fill="#3b82f6"/>
+                <circle cx="40" cy="40" r="2" fill="#3b82f6"/>
+                <circle cx="90" cy="10" r="2" fill="#3b82f6"/>
+                <circle cx="10" cy="90" r="2" fill="#3b82f6"/>
+                <circle cx="90" cy="90" r="2" fill="#3b82f6"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#circuit)"/>
+          </svg>
+          `
+        }}
+      />
+
       {/* Background flare */}
       <div className="absolute top-1/4 -right-64 w-[500px] h-[500px] bg-primary/10 blur-[150px] rounded-full pointer-events-none" />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-24 md:text-center md:max-w-3xl md:mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -103,15 +100,9 @@ export function Services() {
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             <span className="text-xs font-semibold tracking-widest uppercase text-white/80">Expertise</span>
           </motion.div>
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6"
-          >
-            Core <span className="text-gradient-primary">Capabilities</span>
-          </motion.h2>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
+            <ScrambleText text="Core Capabilities" className="text-gradient-primary" />
+          </h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -127,27 +118,21 @@ export function Services() {
           {SERVICES.map((service, index) => {
             const num = (index + 1).toString().padStart(2, '0');
             return (
-              <TiltCard key={service.title} className="group relative h-full">
+              <HolographicCard key={service.title} className="h-full rounded-3xl bg-card border border-white/5 cursor-pointer flex flex-col p-8">
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="h-full p-8 rounded-3xl bg-card border border-white/5 group-hover:border-white/10 transition-all duration-500 overflow-hidden cursor-pointer flex flex-col"
+                  className="h-full flex flex-col pointer-events-none"
                   style={{ transform: "translateZ(30px)" }}
                 >
                   {/* Number Prefix */}
-                  <div className="absolute top-6 right-6 font-display font-bold text-6xl text-white/[0.03] group-hover:text-primary/[0.05] transition-colors duration-500 select-none">
+                  <div className="absolute top-0 right-0 font-display font-bold text-6xl text-white/[0.03] group-hover:text-primary/[0.05] transition-colors duration-500 select-none">
                     {num}
                   </div>
 
-                  {/* Glowing Left Line on Hover */}
-                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  {/* Hover Gradient Background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
-                  <div className="relative z-10 h-full flex flex-col pointer-events-none">
+                  <div className="relative z-10 h-full flex flex-col">
                     <div className="w-14 h-14 rounded-2xl glass-panel flex items-center justify-center text-white/80 group-hover:text-primary group-hover:border-primary/30 group-hover:scale-110 transition-all duration-500 mb-8 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.3)]">
                       {service.icon}
                     </div>
@@ -163,7 +148,7 @@ export function Services() {
                     </div>
                   </div>
                 </motion.div>
-              </TiltCard>
+              </HolographicCard>
             );
           })}
         </div>

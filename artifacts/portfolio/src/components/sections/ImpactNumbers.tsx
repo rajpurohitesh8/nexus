@@ -1,5 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import { ScrambleText } from "@/components/ScrambleText";
 
 const STATS = [
   { value: 47832, prefix: "", suffix: "+", label: "Lines of Code Shipped", desc: "Across 200+ production repositories" },
@@ -110,14 +111,9 @@ export function ImpactNumbers() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-20">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-6xl font-display font-bold text-white mb-4 glitch-text"
-          >
-            The Numbers Don't Lie
-          </motion.h2>
+          <h2 className="text-4xl md:text-6xl font-display font-bold mb-4">
+             <ScrambleText text="The Numbers Don't Lie" className="text-white glitch-text" />
+          </h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

@@ -12,6 +12,7 @@ import { ImpactNumbers } from "@/components/sections/ImpactNumbers";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/Footer";
+import { PerspectiveGrid } from "@/components/PerspectiveGrid";
 
 export default function Home() {
   return (
@@ -22,9 +23,11 @@ export default function Home() {
       
       <main>
         <Hero />
+        <PerspectiveGrid />
         <Services />
         <TechShowcase />
         <Projects />
+        <PerspectiveGrid />
         <Stats />
         <Process />
         <About />

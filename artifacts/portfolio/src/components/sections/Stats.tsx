@@ -1,6 +1,8 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { Trophy, Star, Calendar, Users, TrendingUp } from "lucide-react";
+import { MorphingBlob } from "@/components/MorphingBlob";
+import { ScrambleText } from "@/components/ScrambleText";
 
 const STATS = [
   { value: 200, label: "Projects Delivered", suffix: "+", icon: Trophy },
@@ -46,14 +48,24 @@ function Counter({ from, to, prefix = "", suffix }: { from: number; to: number; 
 export function Stats() {
   return (
     <section className="py-24 relative overflow-hidden">
+      {/* Morphing Blob Background */}
+      <MorphingBlob className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 z-0" />
+
       {/* Stunning horizontal gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-background to-accent/20" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] mix-blend-overlay" />
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-background to-accent/20 z-0" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] mix-blend-overlay z-0" />
       
-      <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent" />
-      <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent" />
+      <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent z-0" />
+      <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent z-0" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        
+        <div className="text-center mb-16">
+           <h2 className="text-3xl md:text-4xl font-display font-bold">
+             <ScrambleText text="Our Global Impact" className="text-white" />
+           </h2>
+        </div>
+
         <div className="flex flex-wrap justify-center md:justify-between items-center gap-12 lg:gap-8">
           {STATS.map((stat, i) => {
             const Icon = stat.icon;

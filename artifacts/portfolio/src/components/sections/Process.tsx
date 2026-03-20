@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Compass, Palette, Code2, Rocket } from "lucide-react";
 import { useRef } from "react";
+import { ScrambleText } from "@/components/ScrambleText";
 
 const STEPS = [
   {
@@ -46,15 +47,9 @@ export function Process() {
           >
             <span className="text-xs font-semibold tracking-widest uppercase text-white/80">Methodology</span>
           </motion.div>
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6"
-          >
-            Our <span className="text-secondary text-glow-accent">Process</span>
-          </motion.h2>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
+            <ScrambleText text="Our Process" className="text-secondary text-glow-accent" />
+          </h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MorphingBlob } from "@/components/MorphingBlob";
 
 const TESTIMONIALS = [
   {
@@ -69,6 +70,8 @@ export function Testimonials() {
 
   return (
     <section id="testimonials" className="py-32 relative bg-background border-y border-white/5 overflow-hidden perspective-[1000px]">
+      <MorphingBlob className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-40 z-0" />
+      
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 blur-[150px] rounded-full pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

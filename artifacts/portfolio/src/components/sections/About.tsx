@@ -1,5 +1,107 @@
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Award } from "lucide-react";
+
+function OrbitalDiagram() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+    let hoverScale = 1;
+
+    const resize = () => {
+      const parent = canvas.parentElement;
+      if (parent) {
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      }
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const handleMouseMove = () => { hoverScale = 2; };
+    const handleMouseLeave = () => { hoverScale = 1; };
+
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("mouseleave", handleMouseLeave);
+
+    const orbits = [
+      { radius: 100, speed: 0.005, items: ["React", "Python", "Go"] },
+      { radius: 160, speed: 0.003, items: ["AWS", "Node.js", "K8s", "TypeScript"] },
+      { radius: 220, speed: 0.002, items: ["PostgreSQL", "TensorFlow", "Docker", "Redis", "GraphQL"] },
+    ];
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+
+      time += hoverScale;
+
+      // Draw center orb
+      const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, 30);
+      gradient.addColorStop(0, "rgba(139, 92, 246, 1)");
+      gradient.addColorStop(1, "rgba(139, 92, 246, 0)");
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 12px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("NEXUS", cx, cy);
+
+      // Draw rings and items
+      orbits.forEach((orbit, i) => {
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+        ctx.setLineDash([5, 5]);
+        ctx.arc(cx, cy, orbit.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        orbit.items.forEach((item, j) => {
+          const angle = (j / orbit.items.length) * Math.PI * 2 + time * orbit.speed;
+          const x = cx + Math.cos(angle) * orbit.radius;
+          const y = cy + Math.sin(angle) * orbit.radius;
+
+          ctx.beginPath();
+          ctx.arc(x, y, 4, 0, Math.PI * 2);
+          ctx.fillStyle = i === 0 ? "#8b5cf6" : i === 1 ? "#3b82f6" : "#22d3ee";
+          ctx.fill();
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = ctx.fillStyle;
+
+          ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+          ctx.shadowBlur = 0;
+          ctx.font = "10px sans-serif";
+          ctx.fillText(item, x, y - 12);
+        });
+      });
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("mouseleave", handleMouseLeave);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="w-full h-full cursor-pointer" />;
+}
 
 export function About() {
   return (
@@ -51,18 +153,10 @@ export function About() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="relative"
+            className="relative h-[500px]"
           >
-            <div className="aspect-[4/5] rounded-3xl overflow-hidden relative glass-panel border border-white/10 p-2">
-              <div className="w-full h-full rounded-2xl overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent z-10" />
-                <div className="absolute inset-0 bg-primary/10 mix-blend-overlay z-10" />
-                <img
-                  src={`${import.meta.env.BASE_URL}images/agency-office.png`}
-                  alt="NEXUS Agency Office"
-                  className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-1000"
-                />
-              </div>
+            <div className="absolute inset-0 glass-panel rounded-3xl border border-white/10 overflow-hidden flex items-center justify-center">
+               <OrbitalDiagram />
             </div>
             
             {/* Decorative elements */}

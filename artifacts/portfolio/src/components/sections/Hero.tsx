@@ -1,14 +1,13 @@
-import { motion, useTransform, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
 import { cn } from "@/lib/utils";
 
-class Particle {
+class Star {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
-  size: number;
+  z: number;
+  pz: number;
   color: string;
   canvasWidth: number;
   canvasHeight: number;
@@ -16,52 +15,46 @@ class Particle {
   constructor(canvasWidth: number, canvasHeight: number) {
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
-    this.x = Math.random() * canvasWidth;
-    this.y = Math.random() * canvasHeight;
-    this.vx = (Math.random() - 0.5) * 1;
-    this.vy = (Math.random() - 0.5) * 1;
-    this.size = Math.random() * 2 + 0.5;
-    const colors = ['#a855f7', '#3b82f6', '#22d3ee']; // purple, blue, cyan
+    this.x = (Math.random() - 0.5) * canvasWidth * 2;
+    this.y = (Math.random() - 0.5) * canvasHeight * 2;
+    this.z = Math.random() * 2000;
+    this.pz = this.z;
+    const colors = ['#a855f7', '#3b82f6', '#ffffff', '#22d3ee'];
     this.color = colors[Math.floor(Math.random() * colors.length)];
   }
 
-  update(canvasWidth: number, canvasHeight: number, mouseX: number, mouseY: number) {
+  update(speed: number, canvasWidth: number, canvasHeight: number) {
     this.canvasWidth = canvasWidth;
     this.canvasHeight = canvasHeight;
-    
-    // Mouse repulsion
-    const dx = this.x - mouseX;
-    const dy = this.y - mouseY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    
-    if (dist < 100) {
-      this.vx += (dx / dist) * 0.05;
-      this.vy += (dy / dist) * 0.05;
-    }
+    this.pz = this.z;
+    this.z -= speed;
 
-    // Velocity limits and decay
-    this.vx *= 0.99;
-    this.vy *= 0.99;
-    
-    // Ensure minimal movement
-    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
-    if (speed < 0.2) {
-      this.vx += (Math.random() - 0.5) * 0.1;
-      this.vy += (Math.random() - 0.5) * 0.1;
+    if (this.z < 1) {
+      this.z = 2000;
+      this.pz = 2000;
+      this.x = (Math.random() - 0.5) * canvasWidth * 2;
+      this.y = (Math.random() - 0.5) * canvasHeight * 2;
     }
-
-    if (this.x < 0 || this.x > this.canvasWidth) this.vx *= -1;
-    if (this.y < 0 || this.y > this.canvasHeight) this.vy *= -1;
-    
-    this.x += this.vx;
-    this.y += this.vy;
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(ctx: CanvasRenderingContext2D, focalLength: number, vpX: number, vpY: number) {
+    const sx = (this.x / this.z) * focalLength + vpX;
+    const sy = (this.y / this.z) * focalLength + vpY;
+    const px = (this.x / this.pz) * focalLength + vpX;
+    const py = (this.y / this.pz) * focalLength + vpY;
+
+    const size = Math.max(0.5, (1 - this.z / 2000) * 3 + 0.5);
+    const opacity = Math.max(0, 1 - this.z / 2000);
+
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
-    ctx.fill();
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = size;
+    ctx.lineCap = 'round';
+    ctx.globalAlpha = opacity;
+    ctx.moveTo(px, py);
+    ctx.lineTo(sx, sy);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
   }
 }
 
@@ -115,7 +108,9 @@ export function Hero() {
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  const mousePosRef = useRef({ x: -1000, y: -1000 });
+  const mousePosRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const speedRef = useRef(8);
+  const lastMousePosRef = useRef({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
   // 3D Parallax Mouse Tracking
   const mouseX = useSpring(0, { stiffness: 50, damping: 20 });
@@ -123,27 +118,28 @@ export function Hero() {
 
   const handleMouseMove = (e: ReactMouseEvent) => {
     const { clientX, clientY } = e;
+    
+    // Calculate mouse speed for warp effect
+    const dx = clientX - lastMousePosRef.current.x;
+    const dy = clientY - lastMousePosRef.current.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    
+    if (dist > 10) {
+      speedRef.current = Math.min(25, speedRef.current + dist * 0.1);
+    }
+    
+    lastMousePosRef.current = { x: clientX, y: clientY };
     mousePosRef.current = { x: clientX, y: clientY };
     
     if (sectionRef.current) {
       const { width, height, left, top } = sectionRef.current.getBoundingClientRect();
-      // Normalized from -0.5 to 0.5
       const nx = (clientX - left) / width - 0.5;
       const ny = (clientY - top) / height - 0.5;
-      mouseX.set(nx * 100); // Max offset 100px
+      mouseX.set(nx * 100); 
       mouseY.set(ny * 100);
     }
   };
 
-  const bgX = useTransform(mouseX, (v) => -v * 0.5);
-  const bgY = useTransform(mouseY, (v) => -v * 0.5);
-  
-  const orbsX = useTransform(mouseX, (v) => -v * 1.0);
-  const orbsY = useTransform(mouseY, (v) => -v * 1.0);
-  
-  const canvasX = useTransform(mouseX, (v) => -v * 0.2);
-  const canvasY = useTransform(mouseY, (v) => -v * 0.2);
-  
   const contentX = useTransform(mouseX, (v) => v * 0.3);
   const contentY = useTransform(mouseY, (v) => v * 0.3);
 
@@ -168,27 +164,29 @@ export function Hero() {
     return () => clearTimeout(timer);
   }, [displayText, isDeleting, phraseIndex]);
 
-  // Canvas Particles
+  // Warp Speed Canvas Particles
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let particles: Particle[] = [];
+    let stars: Star[] = [];
     let animationFrameId: number;
 
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      initParticles();
+      mousePosRef.current = { x: canvas.width / 2, y: canvas.height / 2 };
+      lastMousePosRef.current = { x: canvas.width / 2, y: canvas.height / 2 };
+      initStars();
     };
 
-    const initParticles = () => {
-      particles = [];
-      const numParticles = Math.min(80, Math.floor((canvas.width * canvas.height) / 15000));
-      for (let i = 0; i < numParticles; i++) {
-        particles.push(new Particle(canvas.width, canvas.height));
+    const initStars = () => {
+      stars = [];
+      const numStars = 300;
+      for (let i = 0; i < numStars; i++) {
+        stars.push(new Star(canvas.width, canvas.height));
       }
     };
 
@@ -196,30 +194,26 @@ export function Hero() {
     window.addEventListener('resize', resize);
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.4)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      const mx = mousePosRef.current.x;
-      const my = mousePosRef.current.y;
+      // Decay speed back to normal
+      speedRef.current = speedRef.current > 8 ? speedRef.current * 0.95 : 8;
 
-      for (let i = 0; i < particles.length; i++) {
-        particles[i].update(canvas.width, canvas.height, mx, my);
-        particles[i].draw(ctx);
-        
-        for (let j = i; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          if (distance < 120) {
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(139, 92, 246, ${0.2 - distance/600})`;
-            ctx.lineWidth = 1;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
-        }
+      const focalLength = canvas.width;
+      
+      // Calculate vanishing point based on mouse (parallax)
+      const nx = (mousePosRef.current.x / canvas.width) - 0.5;
+      const ny = (mousePosRef.current.y / canvas.height) - 0.5;
+      
+      const vpX = canvas.width / 2 + nx * 100; // maxOffset 100px
+      const vpY = canvas.height / 2 + ny * 100;
+
+      for (let i = 0; i < stars.length; i++) {
+        stars[i].update(speedRef.current, canvas.width, canvas.height);
+        stars[i].draw(ctx, focalLength, vpX, vpY);
       }
+      
       animationFrameId = window.requestAnimationFrame(animate);
     };
 
@@ -239,42 +233,22 @@ export function Hero() {
     >
       {/* Background & Canvas */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Layer 1: Background Image */}
-        <motion.div style={{ x: bgX, y: bgY }} className="absolute inset-[-5%] w-[110%] h-[110%]">
-          <img
-            src={`${import.meta.env.BASE_URL}images/hero-bg.png`}
-            alt="Abstract Digital Background"
-            className="w-full h-full object-cover opacity-30 mix-blend-screen"
-          />
-        </motion.div>
-        
-        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/60 to-background" />
-        
-        {/* Layer 3: Particles */}
-        <motion.canvas 
+        <canvas 
           ref={canvasRef} 
-          style={{ x: canvasX, y: canvasY, opacity: 0.6 }}
-          className="absolute inset-[-5%] w-[110%] h-[110%]"
+          className="absolute inset-0 w-full h-full"
         />
         
-        {/* Layer 2: Animated Glow Orbs */}
-        <motion.div style={{ x: orbsX, y: orbsY }} className="absolute inset-[-10%] w-[120%] h-[120%] pointer-events-none">
-          <motion.div 
-            animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/4 -left-[10%] w-[800px] h-[800px] bg-primary/30 rounded-full blur-[120px]" 
-          />
-          <motion.div 
-            animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.3, 0.1] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute bottom-1/4 -right-[10%] w-[600px] h-[600px] bg-accent/30 rounded-full blur-[100px]" 
-          />
-        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/60 to-background" />
       </div>
+
+      {/* Floating Geometric Shapes */}
+      <div className="absolute top-32 right-32 geo-cube z-10 pointer-events-none opacity-60 hidden md:block" />
+      <div className="absolute bottom-32 left-32 geo-triangle z-10 pointer-events-none opacity-60 hidden md:block" />
+      <div className="absolute top-1/2 left-16 -translate-y-1/2 geo-ring z-10 pointer-events-none opacity-60 hidden md:block" />
 
       <motion.div 
         style={{ x: contentX, y: contentY }}
-        className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center pointer-events-auto"
+        className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center pointer-events-auto"
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -346,7 +320,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2, duration: 1 }}
-        className="absolute bottom-24 w-full flex flex-col items-center justify-center opacity-50 hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        className="absolute bottom-24 w-full flex flex-col items-center justify-center opacity-50 hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20"
       >
         <span className="text-xs uppercase tracking-[0.2em] text-white/40 mb-4 font-mono">Trusted by industry leaders</span>
         <div className="flex gap-8 md:gap-16 items-center justify-center px-4 overflow-hidden">
@@ -361,7 +335,7 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40 pointer-events-none"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40 pointer-events-none z-20"
       >
         <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
         <motion.div

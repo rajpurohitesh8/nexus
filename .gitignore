@@ -41,9 +41,6 @@ testem.log
 .DS_Store
 Thumbs.db
 
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
-
 # Replit
 .cache/
 .local/
@@ -68,3 +65,9 @@ pnpm-debug.log*
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Drizzle migrations (generated)
+shared/db/drizzle/
+
+# Vercel
+.vercel

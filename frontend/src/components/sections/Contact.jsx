@@ -138,13 +138,14 @@ export function Contact() {
                 </label>
                 <select
                   {...form.register("budget")}
-                  className="w-full bg-background/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none"
+                  className="w-full bg-background/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none cursor-pointer"
+                  style={{ backgroundColor: "hsl(240 10% 6%)" }}
                 >
-                  <option value="under-10k">Under $10,000</option>
-                  <option value="10k-50k">$10,000 - $50,000</option>
-                  <option value="50k-100k">$50,000 - $100,000</option>
-                  <option value="100k-plus">$100,000+</option>
-                  <option value="not-sure">Not sure yet</option>
+                  <option value="under-10k" style={{ backgroundColor: "hsl(240 10% 6%)" }}>Under $10,000</option>
+                  <option value="10k-50k" style={{ backgroundColor: "hsl(240 10% 6%)" }}>$10,000 - $50,000</option>
+                  <option value="50k-100k" style={{ backgroundColor: "hsl(240 10% 6%)" }}>$50,000 - $100,000</option>
+                  <option value="100k-plus" style={{ backgroundColor: "hsl(240 10% 6%)" }}>$100,000+</option>
+                  <option value="not-sure" style={{ backgroundColor: "hsl(240 10% 6%)" }}>Not sure yet</option>
                 </select>
               </div>
 

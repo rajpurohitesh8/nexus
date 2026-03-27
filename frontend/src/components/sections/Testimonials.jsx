@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MorphingBlob } from "@/components/MorphingBlob";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const TESTIMONIALS = [
   {
@@ -77,6 +78,8 @@ export function Testimonials() {
   };
 
   const [prevIdx, currIdx, nextIdx] = getIndices();
+  // Treat undefined (SSR/first render) as mobile to avoid flashing side cards
+  const isMobile = useIsMobile() !== false;
 
   return (
     <section
@@ -129,7 +132,8 @@ export function Testimonials() {
           </button>
 
           <AnimatePresence mode="popLayout">
-            {/* Previous Card */}
+            {/* Previous Card — only rendered on non-mobile to avoid hidden/flex conflict with framer-motion */}
+            {!isMobile && (
             <motion.div
               key={`prev-${prevIdx}`}
               initial={{ opacity: 0, x: -100, scale: 0.8, rotateY: 15 }}
@@ -147,7 +151,7 @@ export function Testimonials() {
                 stiffness: 300,
                 damping: 30,
               }}
-              className="absolute w-[300px] md:w-[450px] glass-panel p-8 rounded-3xl border border-white/5 flex flex-col items-center text-center justify-center hidden sm:flex"
+              className="absolute w-[300px] md:w-[450px] glass-panel p-8 rounded-3xl border border-white/5 flex flex-col items-center text-center justify-center"
               style={{ transformStyle: "preserve-3d" }}
             >
               <div className="flex gap-1 mb-4">
@@ -172,6 +176,7 @@ export function Testimonials() {
                 </div>
               </div>
             </motion.div>
+            )}
 
             {/* Current Card */}
             <motion.div
@@ -215,7 +220,8 @@ export function Testimonials() {
               </div>
             </motion.div>
 
-            {/* Next Card */}
+            {/* Next Card — only rendered on non-mobile to avoid hidden/flex conflict with framer-motion */}
+            {!isMobile && (
             <motion.div
               key={`next-${nextIdx}`}
               initial={{ opacity: 0, x: 100, scale: 0.8, rotateY: -15 }}
@@ -233,7 +239,7 @@ export function Testimonials() {
                 stiffness: 300,
                 damping: 30,
               }}
-              className="absolute w-[300px] md:w-[450px] glass-panel p-8 rounded-3xl border border-white/5 flex flex-col items-center text-center justify-center hidden sm:flex"
+              className="absolute w-[300px] md:w-[450px] glass-panel p-8 rounded-3xl border border-white/5 flex flex-col items-center text-center justify-center"
               style={{ transformStyle: "preserve-3d" }}
             >
               <div className="flex gap-1 mb-4">
@@ -258,6 +264,7 @@ export function Testimonials() {
                 </div>
               </div>
             </motion.div>
+            )}
           </AnimatePresence>
         </div>
 

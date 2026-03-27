@@ -20,7 +20,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
           {/* Brand Column */}
           <div className="lg:pr-8">
-            <a href="#" className="flex items-center gap-2 mb-6 inline-block">
+            <a href="#" className="flex items-center gap-2 mb-6">
               <div className="flex items-center gap-2">
                 <Hexagon className="w-8 h-8 text-primary fill-primary/20" />
                 <span className="font-display font-bold text-2xl tracking-widest text-white">

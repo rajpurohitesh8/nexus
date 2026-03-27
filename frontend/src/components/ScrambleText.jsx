@@ -21,6 +21,7 @@ export function ScrambleText({ text, className, as: Tag = "span" }) {
     if (!inView) return;
 
     let frame = 0;
+    let animId;
     const queue = text.split("").map((char) => ({
       char,
       isSpace: char === " ",
@@ -36,7 +37,7 @@ export function ScrambleText({ text, className, as: Tag = "span" }) {
           continue;
         }
 
-        const lockFrame = i * 3; // Lock a character every 3 frames (~50ms)
+        const lockFrame = i * 3;
         if (frame >= lockFrame) {
           newText += queue[i].char;
         } else {
@@ -49,11 +50,11 @@ export function ScrambleText({ text, className, as: Tag = "span" }) {
       frame++;
 
       if (!complete) {
-        requestAnimationFrame(update);
+        animId = requestAnimationFrame(update);
       }
     };
 
-    const animId = requestAnimationFrame(update);
+    animId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(animId);
   }, [inView, text]);
 

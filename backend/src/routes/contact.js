@@ -5,7 +5,16 @@ import { contactsTable } from "@workspace/db/schema";
 
 const router = Router();
 
+// Lightweight CSRF guard for JSON API: reject requests that don't send
+// Content-Type: application/json (browsers can't send cross-origin JSON
+// without a preflight, which CORS already blocks).
 router.post("/contact", async (req, res) => {
+  const contentType = req.headers["content-type"] ?? "";
+  if (!contentType.includes("application/json")) {
+    res.status(415).json({ error: "Unsupported Media Type" });
+    return;
+  }
+
   const parseResult = SubmitContactBody.safeParse(req.body);
 
   if (!parseResult.success) {

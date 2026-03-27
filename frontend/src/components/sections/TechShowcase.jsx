@@ -216,8 +216,10 @@ export function TechShowcase() {
               </div>
 
               {/* Terminal Body */}
-              <div className="p-6 font-mono text-sm md:text-base h-[350px] overflow-hidden relative terminal-scanlines flex flex-col justify-end pb-8">
-                <div className="flex flex-col justify-end w-full">
+              <div className="p-6 font-mono text-sm md:text-base h-[350px] overflow-hidden relative flex flex-col justify-end pb-8">
+                {/* Scanlines overlay */}
+                <div className="terminal-scanlines absolute inset-0 pointer-events-none z-10" />
+                <div className="flex flex-col justify-end w-full relative z-20">
                   {displayedLines.map((line, i) => (
                     <div
                       key={i}

@@ -120,6 +120,8 @@ export function Navigation() {
           <button
             className="lg:hidden relative z-50 p-2 text-white/70 hover:text-white"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
               <X className="w-6 h-6" />

@@ -160,7 +160,7 @@ export function About() {
               ))}
             </div>
 
-            <button className="px-8 py-4 rounded-full font-bold bg-white text-background hover:bg-transparent hover:text-white border-2 border-white transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-none hover:border-white/20">
+            <button type="button" className="px-8 py-4 rounded-full font-bold bg-white text-background hover:bg-transparent hover:text-white border-2 border-white transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-none hover:border-white/20">
               Meet The Leadership
             </button>
           </motion.div>

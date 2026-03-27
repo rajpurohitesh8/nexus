@@ -162,7 +162,7 @@ export function Services() {
                   style={{ transform: "translateZ(30px)" }}
                 >
                   {/* Number Prefix */}
-                  <div className="absolute top-0 right-0 font-display font-bold text-6xl text-white/[0.03] group-hover:text-primary/[0.05] transition-colors duration-500 select-none">
+                  <div className="absolute top-0 right-0 font-display font-bold text-6xl text-white/[0.03] group-hover:text-primary/[0.05] transition-colors duration-500 select-none pointer-events-none">
                     {num}
                   </div>
 

@@ -109,15 +109,9 @@ export function Hero() {
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const sectionRef = useRef(null);
-  const mousePosRef = useRef({
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
-  });
+  const mousePosRef = useRef({ x: 0, y: 0 });
   const speedRef = useRef(8);
-  const lastMousePosRef = useRef({
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2,
-  });
+  const lastMousePosRef = useRef({ x: 0, y: 0 });
 
   // 3D Parallax Mouse Tracking
   const mouseX = useSpring(0, { stiffness: 50, damping: 20 });
@@ -154,17 +148,23 @@ export function Hero() {
   // Typewriter effect
   useEffect(() => {
     const currentPhrase = PHRASES[phraseIndex];
-    let typeSpeed = isDeleting ? 50 : 100;
 
+    // Pause at end of phrase before deleting
     if (!isDeleting && displayText === currentPhrase) {
-      typeSpeed = 2000;
-      setIsDeleting(true);
-    } else if (isDeleting && displayText === "") {
-      setIsDeleting(false);
-      setPhraseIndex((prev) => (prev + 1) % PHRASES.length);
-      typeSpeed = 500;
+      const timer = setTimeout(() => setIsDeleting(true), 2000);
+      return () => clearTimeout(timer);
     }
 
+    // Pause before typing next phrase
+    if (isDeleting && displayText === "") {
+      const timer = setTimeout(() => {
+        setIsDeleting(false);
+        setPhraseIndex((prev) => (prev + 1) % PHRASES.length);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+
+    const typeSpeed = isDeleting ? 50 : 100;
     const timer = setTimeout(() => {
       setDisplayText(
         currentPhrase.substring(0, displayText.length + (isDeleting ? -1 : 1)),
@@ -231,7 +231,7 @@ export function Hero() {
 
     return () => {
       window.removeEventListener("resize", resize);
-      window.cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) window.cancelAnimationFrame(animationFrameId);
     };
   }, []);
 

@@ -107,7 +107,7 @@ export function ImpactNumbers() {
 
     const resize = () => {
       canvas.width = window.innerWidth;
-      canvas.height = canvas.parentElement?.clientHeight || 800;
+      canvas.height = canvas.parentElement?.clientHeight || window.innerHeight;
     };
     resize();
     window.addEventListener("resize", resize);

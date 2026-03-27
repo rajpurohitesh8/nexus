@@ -60,6 +60,8 @@ export function Projects() {
     (p) => activeCategory === "All" || p.category === activeCategory,
   );
 
+  // Reset active category scroll position is handled by sticky layout naturally
+
   return (
     <section
       id="work"
